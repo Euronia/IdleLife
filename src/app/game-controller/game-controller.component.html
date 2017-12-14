@@ -1,3 +1,30 @@
-<p>
-  game-controller works!
-</p>
+<div>
+    <ng-container *ngFor="let resource of this.resources">
+      {{resource.name}} : {{resource.quantity}}
+    </ng-container>
+
+  <br />
+  <br />
+
+    <ng-container *ngFor="let producer of this.producers" >
+      <div>
+        {{producer.name}} : {{producer.quantity}}
+        <button mat-button (click)="buy(producer)"> Acheter </button>
+        Prix : {{ producer.price}}
+      </div>
+    </ng-container>
+
+  <br />
+  <br />
+    <ng-container *ngFor="let producer of this.producers">
+      <div>
+      Your {{producer.name}}s are producing {{producer.quantity * producer.prodPerSec}} {{producer.production[0].name}} per second.
+      </div>
+    </ng-container>
+</div>
+
+
+
+
+
+
