@@ -6,8 +6,7 @@ export class Resource extends Unlockable {
 
 
   constructor(id: number, unlocked: boolean, name: string, quantity: number) {
-    super(id, unlocked, quantity);
-    this.name = name;
+    super(id, name, unlocked, quantity);
 
   }
 }

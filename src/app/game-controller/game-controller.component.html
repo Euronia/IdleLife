@@ -1,30 +1,50 @@
-<div>
-    <ng-container *ngFor="let resource of this.resources">
-      {{resource.name}} : {{resource.quantity}}
-    </ng-container>
+<mat-grid-list cols="2" rowHeight="2:1">
 
-  <br />
-  <br />
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-title>Resources </mat-card-title>
+      <ng-container *ngFor="let resource of this.resources">
+        {{resource.name}} : {{resource.quantity | number : '1.2-2'}}
+        <button mat-button (click)="cheat(resource)"> Cheat </button>
+      </ng-container>
+    </mat-card>
+  </mat-grid-tile>
 
-    <ng-container *ngFor="let producer of this.producers" >
-      <div>
-        {{producer.name}} : {{producer.quantity}}
-        <button mat-button (click)="buy(producer)"> Acheter </button>
-        Prix : {{ producer.price}}
-      </div>
-    </ng-container>
+  <mat-grid-tile>
+    <mat-card>
+    <mat-card-title>Producers </mat-card-title>
+    <mat-list>
+      <ng-container *ngFor="let producer of this.producers" >
+        <mat-list-item *ngIf="producer.unlocked">
+          {{producer.name}} : {{producer.quantity}}
+          <button mat-button (click)="buy(producer)"> Buy </button>
+          Price : {{ producer.getPrice()}}
+        </mat-list-item>
+      </ng-container>
+    </mat-list>
+    </mat-card>
+  </mat-grid-tile>
 
-  <br />
-  <br />
-    <ng-container *ngFor="let producer of this.producers">
-      <div>
-      Your {{producer.name}}s are producing {{producer.quantity * producer.prodPerSec}} {{producer.production[0].name}} per second.
-      </div>
-    </ng-container>
-</div>
+  <mat-grid-tile>
+    <mat-card>
+      <mat-card-title>Upgrades </mat-card-title>
+      <ng-container *ngFor="let upgrade of this.upgrades" >
+        <div *ngIf="upgrade.unlocked && !upgrade.bought">
+          {{upgrade.name}}
+          <button mat-button (click)="buyUpgrade(upgrade)"> Buy </button>
+          Price : {{ upgrade.price}}
+        </div>
+      </ng-container>
+    </mat-card>
+  </mat-grid-tile>
 
-
-
-
-
-
+  <mat-grid-tile>
+    <mat-card>
+      <ng-container *ngFor="let producer of this.producers" >
+        <div *ngIf="producer.unlocked">
+          Your {{producer.name}}s are producing {{producer.quantity * producer.prodPerSec}} {{producer.production[0].name}} per second.
+        </div>
+      </ng-container>
+    </mat-card>
+  </mat-grid-tile>
+</mat-grid-list>
