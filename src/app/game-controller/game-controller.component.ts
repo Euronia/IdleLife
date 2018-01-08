@@ -43,14 +43,21 @@ export class GameControllerComponent implements OnInit {
     const delta = now - this.last;
 
     if (delta > this.interval) {
+      this.updateProduction();
+      this.updateUnlockables();
+      this.last = delta;
+      }
+    }
+
+  updateProduction() {
       this.producers.forEach(item => {
         item.production.forEach(producedItem => {
           producedItem.quantity += item.prodPerSec * item.quantity;
         });
-        this.last = delta;
-      });
-    }
+    });
   }
+
+  updateUnlockables() {}
 
   cheat(resource: Resource) {
     resource.quantity += 1000000000000;

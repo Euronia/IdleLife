@@ -24,7 +24,7 @@ export class Producer extends Resource {
   }
 
   setProdPerSec (value: number) {
-    this.prodPerSec.toFixed(2);
+    this.prodPerSec = value;
   }
 
 }
