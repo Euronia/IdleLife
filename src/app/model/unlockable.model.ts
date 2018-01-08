@@ -3,7 +3,7 @@ export abstract class Unlockable {
   public name: string;
   public unlocked: boolean;
   public quantity: number;
-  public unlockable: Unlockable; // TODO add several unlockables to a single Unlockable
+  public unlockables: Unlockable[]; // TODO add several unlockables to a single Unlockable
   public unlockableNumber: number;
 
   constructor(id: number, name: string, unlocked: boolean, quantity: number) {
@@ -11,24 +11,33 @@ export abstract class Unlockable {
     this.name = name;
     this.unlocked = unlocked;
     this.quantity = quantity;
+    this.unlockables = [];
   }
 
   addUnlockableOnNumber(size: number, unlockable: Unlockable) {
-    this.unlockable = unlockable;
-    this.unlockableNumber = size;
+    unlockable.unlockableNumber = size;
+    this.unlockables.push(unlockable);
   }
 
   changeQuantity(change: number) {
     this.quantity += change;
-    if (this.unlockable) {
+    if (this.unlockables) {
       this.checkUnlockables();
     }
   }
 
   checkUnlockables() {
-    if (this.quantity >= this.unlockableNumber) {
-      this.unlockable.unlocked = true;
-      this.unlockable = null;
+    if (this.unlockables.length !== 0) {
+      this.unlockables.forEach(unlockable => {
+        if (this.quantity >= unlockable.unlockableNumber) {
+          unlockable.unlocked = true;
+          const index = this.unlockables.indexOf(unlockable, 0);
+          if (index > -1) {
+            this.unlockables.splice(index, 1);
+          }
+        }
+      });
     }
   }
+
 }

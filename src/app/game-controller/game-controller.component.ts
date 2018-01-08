@@ -34,7 +34,10 @@ export class GameControllerComponent implements OnInit {
 
     const lemonsUpgrade1 = new Upgrade(1, false, 'Making Lemonade', 0, 3, 500, false, lemons);
     this.upgrades.push(lemonsUpgrade1);
+    const lemonsUpgrade2 = new Upgrade(2, false, 'Making More Lemonade', 0, 3, 500, false, lemons);
+    this.upgrades.push(lemonsUpgrade2);
     lemons.addUnlockableOnNumber(2, lemonsUpgrade1);
+    lemons.addUnlockableOnNumber(5, lemonsUpgrade2);
     setInterval(this.update.bind(this), this.interval);
   }
 
