@@ -2,9 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import {Resource} from '../model/resource.model';
 import {Producer} from '../model/producer.model';
 import {Upgrade} from '../model/upgrade.model';
+import {StatisticsComponent} from '../statistics/component/statistics.component';
+import {StatisticsService} from '../statistics/service/statistics.service';
 
 @Component({
   selector: 'app-game-controller',
+  providers: [StatisticsService],
   templateUrl: './game-controller.component.html',
   styleUrls: ['./game-controller.component.css']
 })
@@ -15,11 +18,14 @@ export class GameControllerComponent implements OnInit {
   upgrades: Upgrade[] = [];
   interval = 1000;
   last = 0;
+  statsService: StatisticsService;
 
-  constructor() { }
+  constructor(statsService: StatisticsService) {
+    this.statsService = statsService;
+  }
 
   ngOnInit() {
-    const coins = new Resource(1, true, 'Coin', 1);
+    const coins = new Resource(1, true, 'Coin', 0);
     this.resources.push(coins);
     const lemons = new Producer(1, true, 'Lemon', [coins], 1.67, 4, 1, 1.07);
     this.producers.push(lemons);
@@ -46,21 +52,29 @@ export class GameControllerComponent implements OnInit {
     const delta = now - this.last;
 
     if (delta > this.interval) {
-      this.updateProduction();
+      const earned = this.updateProduction();
       this.updateUnlockables();
+      this.updateStatistics(earned);
       this.last = delta;
       }
     }
 
   updateProduction() {
+    let coinsEarned: any = 0;
       this.producers.forEach(item => {
         item.production.forEach(producedItem => {
           producedItem.quantity += item.prodPerSec * item.quantity;
+          coinsEarned += item.prodPerSec * item.quantity;
         });
     });
+      return coinsEarned;
   }
 
   updateUnlockables() {}
+
+  updateStatistics(earned: number) {
+    StatisticsService.addRessources(earned);
+  }
 
   cheat(resource: Resource) {
     resource.quantity += 1000000000000;
