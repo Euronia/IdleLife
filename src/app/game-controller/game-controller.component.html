@@ -32,7 +32,7 @@
         <div *ngIf="upgrade.unlocked && !upgrade.bought">
           {{upgrade.name}}
           <button mat-button (click)="buyUpgrade(upgrade)"> Buy </button>
-          Price : {{ upgrade.price}}
+          Price : {{ upgrade.price | number : '1.2-2'}}
         </div>
       </ng-container>
     </mat-card>
@@ -42,7 +42,7 @@
     <mat-card>
       <ng-container *ngFor="let producer of this.producers" >
         <div *ngIf="producer.unlocked">
-          Your {{producer.name}}s are producing {{producer.quantity * producer.prodPerSec}} {{producer.production[0].name}} per second.
+          Your {{producer.name}}s are producing {{producer.quantity * producer.prodPerSec | number : '1.2-2'}} {{producer.production[0].name}} per second.
         </div>
       </ng-container>
     </mat-card>
