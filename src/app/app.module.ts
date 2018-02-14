@@ -3,14 +3,21 @@ import { NgModule } from '@angular/core';
 
 
 import { AppComponent } from './app.component';
+import { GameControllerComponent } from './game-controller/game-controller.component';
+import {MatButtonModule, MatCardModule, MatGridListModule, MatListModule} from '@angular/material';
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    GameControllerComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    MatGridListModule,
+    MatButtonModule,
+    MatListModule,
+    MatCardModule
   ],
   providers: [],
   bootstrap: [AppComponent]
