@@ -1,7 +1,4 @@
 
-
-import {Unlockable} from './unlockable.model';
-
 export class Price {
 
   public unlockableId: number;

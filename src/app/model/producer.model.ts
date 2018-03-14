@@ -10,6 +10,7 @@ export class Producer extends Resource {
   public prodPerSec: number;
   public rateGrowth: number;
   public description: string;
+  public legacyQuantity: number;
 
 
   constructor(id: number, unlocked: boolean, name: string, production: Unlockable[], prodPerSec: number, price: Price,
@@ -20,14 +21,19 @@ export class Producer extends Resource {
     this.price = price;
     this.rateGrowth = rateGrowth;
     this.description = description;
+    this.legacyQuantity = 0 ;
   }
 
   getPrice(): number {
-    return Number((this.price.size * this.rateGrowth ** this.quantity).toFixed(2));
+    return Number((this.price.size * this.rateGrowth ** (this.quantity - this.legacyQuantity )).toFixed(2));
   }
 
   setProdPerSec (value: number) {
     this.prodPerSec = value;
+  }
+
+  prestigeWorkDay() {
+    this.legacyQuantity = this.quantity;
   }
 
 }
