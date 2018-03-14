@@ -9,6 +9,8 @@ import { StatisticsComponent } from './statistics/component/statistics.component
 import {ClockService} from './statistics/clock.service';
 import { PrestigeComponent } from './prestige/prestige.component';
 import { AchievementsComponent } from './achievements/achievements.component';
+import {AngularSvgIconModule} from 'angular-svg-icon';
+import {HttpClientModule} from '@angular/common/http';
 
 
 @NgModule({
@@ -20,7 +22,9 @@ import { AchievementsComponent } from './achievements/achievements.component';
     AchievementsComponent
   ],
   imports: [
+    HttpClientModule,
     BrowserModule,
+    AngularSvgIconModule,
     MatGridListModule,
     MatButtonModule,
     MatListModule,

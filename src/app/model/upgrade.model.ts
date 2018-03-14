@@ -1,14 +1,15 @@
 import {Unlockable} from './unlockable.model';
 import {Producer} from './producer.model';
+import {Price} from './price.model';
 
 export class Upgrade extends Unlockable {
   public name: string;
   public value: number; // TODO  Add an effect class to have different effects for the upgrades ?
-  public price: number;
+  public price: Price;
   public bought: boolean;
   public upgradeObject: Producer;
 
-  constructor(id: number, unlocked: boolean, name: string, quantity: number, value: number, price: number,
+  constructor(id: number, unlocked: boolean, name: string, quantity: number, value: number, price: Price,
               bought: boolean, upgradeObject: Producer) {
     super(id, name, unlocked, quantity);
     this.value = value;
@@ -21,7 +22,12 @@ export class Upgrade extends Unlockable {
     if (!this.bought) {
       this.quantity += 1;
       this.bought = true;
-      this.upgradeObject.setProdPerSec(this.upgradeObject.prodPerSec * this.value);
+      if (this.upgradeObject) {
+        this.upgradeObject.setProdPerSec(this.upgradeObject.prodPerSec * this.value);
+      }
+      if (this.unlockables) {
+        this.checkUnlockables();
+      }
     }
   }
 }
