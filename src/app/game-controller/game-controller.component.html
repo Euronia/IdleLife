@@ -14,10 +14,11 @@
 
     </mat-card>
 
-    <mat-card *ngIf="this.prestiges[0].isBuyable(this.resources)">
+    <mat-card *ngIf="this.prestiges[0].buyable || this.prestiges[0].quantity > 0 ">
       <ng-container *ngFor="let prestige of this.prestiges" >
         <div *ngIf="prestige.unlocked">
-          <button mat-button (click)="callItADay()"> {{prestige.description}} </button>
+          <button mat-button (click)="callItADay()"  class="primair"
+                  [disabled]="!prestige.buyable"> {{prestige.description}} </button>
         </div>
       </ng-container>
     </mat-card>

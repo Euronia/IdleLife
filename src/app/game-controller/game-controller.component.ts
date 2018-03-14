@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import {Resource} from '../model/resource.model';
 import {Producer} from '../model/producer.model';
 import {Upgrade} from '../model/upgrade.model';
-import {StatisticsComponent} from '../statistics/component/statistics.component';
 import {StatisticsService} from '../statistics/service/statistics.service';
 import {Price} from '../model/price.model';
 import {PrestigeCurrency} from '../model/prestige.model';
@@ -44,7 +43,7 @@ export class GameControllerComponent implements OnInit {
     const incrementalUnlock = new Upgrade(1, false, 'Discover r/incremental_games', 0, 1, new Price(2, 20), false, null);
     this.upgrades.push(incrementalUnlock);
 
-    const workDays = new PrestigeCurrency(1, false, 'Work days', 0, [new Price(1, 250)], 'Call it a day');
+    const workDays = new PrestigeCurrency(1, false, 'Work days', 0, [new Price(1, 25)], 'Call it a day');
     this.prestiges.push(workDays);
 
     workUnit.addUnlockableOnNumber(2, happiness);
@@ -64,6 +63,7 @@ export class GameControllerComponent implements OnInit {
       const earned = this.updateProduction();
       this.updateUnlockables();
       this.updateStatistics(earned);
+      this.updatePrestiges();
       this.last = delta;
       }
     }
@@ -92,6 +92,11 @@ export class GameControllerComponent implements OnInit {
     StatisticsService.addRessources(earned);
   }
 
+  updatePrestiges() {
+    this.prestiges.forEach( item =>
+    item.updateBuyable(this.resources));
+  }
+
   cheat(resource: Resource) {
     resource.quantity += 1000000000000;
   }
@@ -107,6 +112,8 @@ export class GameControllerComponent implements OnInit {
   callItADay() {
     this.producers.forEach(item => item.prestigeWorkDay());
     this.resources.forEach(item => item.quantity = 0);
+    this.prestiges[0].changeQuantity(1);
+    this.prestiges[0].buyable = false;
   }
 
   buy(producer: Producer) {
