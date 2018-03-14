@@ -4,6 +4,7 @@ import {Producer} from '../model/producer.model';
 import {Upgrade} from '../model/upgrade.model';
 import {StatisticsComponent} from '../statistics/component/statistics.component';
 import {StatisticsService} from '../statistics/service/statistics.service';
+import {Price} from '../model/price.model';
 
 @Component({
   selector: 'app-game-controller',
@@ -18,38 +19,40 @@ export class GameControllerComponent implements OnInit {
   upgrades: Upgrade[] = [];
   interval = 1000;
   last = 0;
+  playerTime = 0;
   statsService: StatisticsService;
+  producerUnlocked = false;
+  upgradeUnlocked = false;
 
   constructor(statsService: StatisticsService) {
     this.statsService = statsService;
   }
 
   ngOnInit() {
-    const coins = new Resource(1, true, 'Coin', 0);
-    this.resources.push(coins);
-    const lemons = new Producer(1, true, 'Lemon', [coins], 1.67, 4, 1, 1.07);
-    this.producers.push(lemons);
-    const news = new Producer(2, true, 'News', [coins], 20, 60, 0, 1.15);
-    this.producers.push(news);
-    const car = new Producer(3, true, 'Car', [coins], 90, 720, 0, 1.14);
-    this.producers.push(car);
-    const pizza = new Producer(4, true, 'Pizza', [coins], 360, 8640, 0, 1.13);
-    this.producers.push(pizza);
-    const donut = new Producer(4, true, 'Donut', [coins], 2160, 103680, 0, 1.12);
-    this.producers.push(donut);
+    const workUnit = new Resource(1, true, 'WorkUnit', 0);
+    this.resources.push(workUnit);
+    const happiness = new Resource(2, false, 'Happiness', 0);
+    this.resources.push(happiness);
+    const worker = new Producer(1, false, 'Worker', [workUnit], 1, new Price(1, 10), 0, 10, 'Write some code that writes some code');
+    this.producers.push(worker);
+    const incrementals = new Producer(2, false, 'Incremental Game', [happiness], 1, new Price(2, 10), 0, 10,
+            'Start playing a new incremental game');
+    this.producers.push(incrementals);
 
-    const lemonsUpgrade1 = new Upgrade(1, false, 'Making Lemonade', 0, 3, 500, false, lemons);
-    this.upgrades.push(lemonsUpgrade1);
-    const lemonsUpgrade2 = new Upgrade(2, false, 'Making More Lemonade', 0, 3, 500, false, lemons);
-    this.upgrades.push(lemonsUpgrade2);
-    lemons.addUnlockableOnNumber(2, lemonsUpgrade1);
-    lemons.addUnlockableOnNumber(5, lemonsUpgrade2);
+    const incrementalUnlock = new Upgrade(1, false, 'Discover r/incremental_games', 0, 1, new Price(2, 20), false, null);
+    this.upgrades.push(incrementalUnlock);
+
+    workUnit.addUnlockableOnNumber(2, happiness);
+    workUnit.addUnlockableOnNumber(5, worker);
+    happiness.addUnlockableOnNumber(20, incrementalUnlock);
+    incrementalUnlock.addUnlockableOnNumber(1, incrementals);
     setInterval(this.update.bind(this), this.interval);
   }
 
   update() {
     const now = new Date().getTime();
     const delta = now - this.last;
+    this.playerTime += delta;
 
     if (delta > this.interval) {
       const earned = this.updateProduction();
@@ -70,7 +73,14 @@ export class GameControllerComponent implements OnInit {
       return coinsEarned;
   }
 
-  updateUnlockables() {}
+  updateUnlockables() {
+    if (this.resources[0].quantity > 4) {
+      this.producerUnlocked = true;
+    }
+    if (this.resources[1].quantity > 19) {
+      this.upgradeUnlocked = true;
+    }
+  }
 
   updateStatistics(earned: number) {
     StatisticsService.addRessources(earned);
@@ -80,17 +90,27 @@ export class GameControllerComponent implements OnInit {
     resource.quantity += 1000000000000;
   }
 
+  writeCode() {
+    this.resources[0].changeQuantity(1);
+  }
+
+  slackReddit() {
+    this.resources[1].changeQuantity(1);
+  }
+
   buy(producer: Producer) {
-    if (producer.getPrice() <= this.resources[0].quantity) {
-      this.resources[0].quantity -= producer.getPrice();
+    const ressource = producer.price.unlockableId - 1;
+    if (producer.getPrice() <= this.resources[ressource].quantity) {
+      this.resources[ressource].quantity -= producer.getPrice();
       producer.changeQuantity(1);
     }
   }
 
   buyUpgrade(upgrade: Upgrade) {
-    if (upgrade.price <= this.resources[0].quantity) {
+    const ressource = upgrade.price.unlockableId - 1;
+    if (upgrade.price.size <= this.resources[ressource].quantity) {
+      this.resources[ressource].quantity -= upgrade.price.size;
       upgrade.changeQuantity(1);
-      this.resources[0].quantity -= upgrade.price;
     }
   }
 
