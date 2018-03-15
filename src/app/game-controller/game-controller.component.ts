@@ -42,6 +42,9 @@ export class GameControllerComponent implements OnInit {
   // BAR CONTROLLER
 
   bar: Bar;
+  barResources: Resource[] = [];
+  barProducers: Producer[] = [];
+  barUpgrades: Upgrade[] = [];
 
 
   constructor(statsService: StatisticsService) {
@@ -159,16 +162,6 @@ export class GameControllerComponent implements OnInit {
     this.activeTab = tab;
   }
 
-  goToBar() {
-    this.startBar(this.coworkers);
-    this.selectedIndex = 3;
-    this.switchToTab('Bar');
-  }
-
-  startBar(participants) {
-    this.bar = new Bar(participants);
-  }
-
   buy(producer: Producer) {
     const ressource = producer.price.unlockableId - 1;
     if (producer.getPrice() <= this.workResources[ressource].quantity) {
@@ -213,6 +206,27 @@ export class GameControllerComponent implements OnInit {
       this.switchToTab('Work');
       this.startWorkDay();
     }
+  }
+
+  goToBar() {
+    this.startBar(this.coworkers);
+    this.selectedIndex = 3;
+    this.switchToTab('Bar');
+  }
+
+  startBar(participants) {
+    this.bar = new Bar(participants);
+  }
+
+  initBar() {
+    const liver_resistance = new Resource (1, true, 'Liver Resistance', 1000);
+    this.barResources.push(liver_resistance);
+
+    const alcohols = new Producer(1, true, 'Alcohol', [liver_resistance], -20,
+      new Price(1, 1001), 1, 1, 'Alcohol is slowly but urely beating you');
+
+    const chips = new Producer(2, true, 'Peanuts', [liver_resistance], 0.2,
+      new Price(1, 1001), 1, 1, 'Alcohol is slowly but urely beating you');
   }
 
 }
