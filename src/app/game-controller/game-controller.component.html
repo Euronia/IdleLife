@@ -1,7 +1,9 @@
-
+<mat-tab-group [(selectedIndex)]="this.selectedIndex" class="tab-group">
+  <mat-tab label="Work" [disabled]="this.activeTab !== 'Work'" class="tab-group" >
+    <div [hidden]="this.activeTab !== 'Work'" flex layout-fill>
     <mat-card>
       <mat-card-title>Resources </mat-card-title>
-      <ng-container *ngFor="let resource of this.resources">
+      <ng-container *ngFor="let resource of this.workResources">
         <mat-list-item *ngIf="resource.unlocked">
           {{resource.name}} : {{resource.quantity | number : '1.2-2'}}
         </mat-list-item>
@@ -10,7 +12,7 @@
 
     <mat-card>
       <button mat-button (click)="writeCode()"> Write some code </button>
-      <button mat-button *ngIf="this.resources[1].unlocked" (click)="slackReddit()"> Slack on reddit </button>
+      <button mat-button *ngIf="this.workResources[1].unlocked" (click)="slackReddit()"> Slack on reddit </button>
 
     </mat-card>
 
@@ -29,7 +31,7 @@
     <mat-card *ngIf="this.producerUnlocked">
     <mat-card-title>Producers </mat-card-title>
     <mat-list>
-      <ng-container *ngFor="let producer of this.producers" >
+      <ng-container *ngFor="let producer of this.workProducers" >
         <mat-list-item *ngIf="producer.unlocked">
           {{producer.name}} : {{producer.quantity}}
           <button mat-button (click)="buy(producer)"> {{producer.description}} </button>
@@ -41,13 +43,44 @@
 
     <mat-card *ngIf="this.upgradeUnlocked">
       <mat-card-title>Upgrades </mat-card-title>
-      <ng-container *ngFor="let upgrade of this.upgrades" >
+      <ng-container *ngFor="let upgrade of this.workUpgrades" >
         <div *ngIf="upgrade.unlocked && !upgrade.bought">
-          <button mat-button (click)="buyUpgrade(upgrade)"> {{upgrade.name}} </button>
-          Price : {{ upgrade.price.size | number : '1.2-2'}} {{ this.resources[upgrade.price.unlockableId -1].name}}
+          <button mat-button (click)="buyWorkUpgrade(upgrade)"> {{upgrade.name}} </button>
+          Price : {{ upgrade.price.size | number : '1.2-2'}} {{ this.workResources[upgrade.price.unlockableId -1].name}}
         </div>
       </ng-container>
     </mat-card>
+    </div>
+    <div *ngIf="this.activeTab === 'Home'">
+      The week is over. Time to go home.
+    </div>
+  </mat-tab>
+
+  <mat-tab label="Home" *ngIf="this.activeTab === 'Home'" class="tab-group">
+
+    <button mat-button (click)="endHomeDay()" > {{this.prestiges[1].description}}</button>
+    <mat-card>
+      <mat-card-title>Resources </mat-card-title>
+      <ng-container *ngFor="let resource of this.homeResources">
+        <mat-list-item *ngIf="resource.unlocked">
+          {{resource.name}} : {{resource.quantity | number : '1.2-2'}}
+        </mat-list-item>
+      </ng-container>
+    </mat-card>
+
+
+    <mat-card *ngIf="this.upgradeUnlocked">
+      <mat-card-title>Upgrades </mat-card-title>
+      <ng-container *ngFor="let upgrade of this.homeUpgrades" >
+        <div *ngIf="upgrade.unlocked && !upgrade.bought">
+          <button mat-button (click)="buyHomeUpgrade(upgrade)"> {{upgrade.name}} </button>
+          Price : {{ upgrade.price.size | number : '1.2-2'}} {{ this.homeResources[upgrade.price.unlockableId -1].name}}
+        </div>
+      </ng-container>
+    </mat-card>
+  </mat-tab>
+
+</mat-tab-group>
 
 
 {{this.playerTime}}
