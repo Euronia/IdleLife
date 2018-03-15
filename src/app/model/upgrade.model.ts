@@ -4,7 +4,7 @@ import {Price} from './price.model';
 
 export class Upgrade extends Unlockable {
   public name: string;
-  public value: number; // TODO  Add an effect class to have different effects for the upgrades ?
+  public value: number; // TODO  Add an effect class to have different effects for the workUpgrades ?
   public price: Price;
   public bought: boolean;
   public upgradeObject: Producer;

@@ -18,11 +18,13 @@ export class PrestigeCurrency extends Unlockable {
 
   updateBuyable(resources: Resource[]) {
     let buyable = true;
-    this.prices.forEach(item => {
-      if (resources[item.unlockableId - 1].quantity < item.size) {
-        buyable = false;
-      }
-    });
+    if (this.prices) {
+      this.prices.forEach(item => {
+        if (resources[item.unlockableId - 1].quantity < item.size) {
+          buyable = false;
+        }
+      });
+    }
     this.buyable = buyable;
   }
 }
