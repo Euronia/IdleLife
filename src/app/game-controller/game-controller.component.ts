@@ -5,6 +5,8 @@ import {Upgrade} from '../model/upgrade.model';
 import {StatisticsService} from '../statistics/service/statistics.service';
 import {Price} from '../model/price.model';
 import {PrestigeCurrency} from '../model/prestige.model';
+import {Character} from '../model/characters/character.model';
+import {Bar} from '../model/bar/bar.model';
 
 @Component({
   selector: 'app-game-controller',
@@ -15,6 +17,7 @@ import {PrestigeCurrency} from '../model/prestige.model';
 export class GameControllerComponent implements OnInit {
 
   workResources: Resource[] = [];
+  coworkers: Character[] = [];
   workProducers: Producer[] = [];
   workUpgrades: Upgrade[] = [];
   prestiges: PrestigeCurrency[] = [];
@@ -35,6 +38,10 @@ export class GameControllerComponent implements OnInit {
   homeProducers: Producer[] = [];
   // noinspection TsLint
   homeUpgrades: Upgrade[] = [];
+
+  // BAR CONTROLLER
+
+  bar: Bar;
 
 
   constructor(statsService: StatisticsService) {
@@ -60,6 +67,13 @@ export class GameControllerComponent implements OnInit {
 
     const homeDays = new PrestigeCurrency(2, false, 'Home days', 0, null, 'Go to sleep');
     this.prestiges.push(homeDays);
+
+    this.coworkers.push(new Character());
+    this.coworkers.push(new Character());
+    this.coworkers.push(new Character());
+    this.coworkers.push(new Character());
+
+
 
     workUnit.addUnlockableOnNumber(2, happiness);
     workUnit.addUnlockableOnNumber(5, worker);
@@ -127,18 +141,32 @@ export class GameControllerComponent implements OnInit {
   }
 
   callItADay() {
-    this.workProducers.forEach(item => item.prestigeWorkDay());
-    this.workResources.forEach(item => item.quantity = 0);
     this.prestiges[0].changeQuantity(1);
     this.prestiges[0].buyable = false;
     if (this.prestiges[0].quantity % 5 === 0) {
       this.switchToTab('Home');
       this.selectedIndex = 1;
     }
+    this.startWorkDay()
+  }
+
+  startWorkDay() {
+    this.workProducers.forEach(item => item.prestigeWorkDay());
+    this.workResources.forEach(item => item.quantity = 0);
   }
 
   switchToTab(tab: string) {
     this.activeTab = tab;
+  }
+
+  goToBar() {
+    this.startBar(this.coworkers);
+    this.selectedIndex = 3;
+    this.switchToTab('Bar');
+  }
+
+  startBar(participants) {
+    this.bar = new Bar(participants);
   }
 
   buy(producer: Producer) {
@@ -183,6 +211,7 @@ export class GameControllerComponent implements OnInit {
     if (this.prestiges[1].quantity % 2 === 0) {
       this.selectedIndex = 0;
       this.switchToTab('Work');
+      this.startWorkDay();
     }
   }
 

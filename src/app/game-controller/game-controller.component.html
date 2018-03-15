@@ -26,6 +26,9 @@
                   [disabled]="!prestige.buyable"> {{prestige.description}} </button>
         </div>
       </ng-container>
+      <div  *ngIf="this.workResources[1].quantity > 100">
+        <button mat-button (click)="goToBar()"> Afterwork Time ! </button>
+      </div>
     </mat-card>
 
     <mat-card *ngIf="this.producerUnlocked">
@@ -50,6 +53,18 @@
         </div>
       </ng-container>
     </mat-card>
+
+      <mat-card >
+        <mat-card-title>Coworkers </mat-card-title>
+        <ul>
+        <ng-container *ngFor="let coworker of this.coworkers" >
+            <li>
+              {{ coworker.name}}
+            </li>
+        </ng-container>
+        </ul>
+      </mat-card>
+
     </div>
     <div *ngIf="this.activeTab === 'Home'">
       The week is over. Time to go home.
@@ -78,6 +93,20 @@
         </div>
       </ng-container>
     </mat-card>
+  </mat-tab>
+
+  <mat-tab label="Bar" *ngIf="this.activeTab === 'Bar'" class="tab-group">
+
+    {{this.bar.name}}
+
+    <ul>
+      <ng-container *ngFor="let participant of this.bar.participants" >
+        <li>
+          {{participant.name}}
+        </li>
+      </ng-container>
+    </ul>
+
   </mat-tab>
 
 </mat-tab-group>

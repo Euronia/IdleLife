@@ -12,6 +12,7 @@ import { AchievementsComponent } from './achievements/achievements.component';
 import {AngularSvgIconModule} from 'angular-svg-icon';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {HttpClientModule} from '@angular/common/http';
+import { BarComponent } from './bar/bar.component';
 
 
 @NgModule({
@@ -20,7 +21,8 @@ import {HttpClientModule} from '@angular/common/http';
     GameControllerComponent,
     StatisticsComponent,
     PrestigeComponent,
-    AchievementsComponent
+    AchievementsComponent,
+    BarComponent
   ],
   imports: [
     BrowserAnimationsModule,
