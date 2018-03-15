@@ -1,5 +1,7 @@
-svg {
-  height: 48px;
-  margin: 0 2em;
-  fill: darkorange;
+.tab-group {
+  border: 1px solid #e8e8e8;
+}
+
+.tab-content {
+  padding: 16px;
 }
