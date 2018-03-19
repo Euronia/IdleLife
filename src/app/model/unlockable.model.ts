@@ -3,7 +3,7 @@ export abstract class Unlockable {
   public name: string;
   public unlocked: boolean;
   public quantity: number;
-  public unlockables: Unlockable[]; // TODO add several unlockables to a single Unlockable
+  public unlockables: Unlockable[];
   public unlockableNumber: number;
 
   constructor(id: number, name: string, unlocked: boolean, quantity: number) {
@@ -28,13 +28,10 @@ export abstract class Unlockable {
 
   checkUnlockables() {
     if (this.unlockables.length !== 0) {
-      this.unlockables.forEach(unlockable => {
+      this.unlockables.filter( u => !u.unlocked).forEach(unlockable => {
         if (this.quantity >= unlockable.unlockableNumber) {
           unlockable.unlocked = true;
           const index = this.unlockables.indexOf(unlockable, 0);
-          if (index > -1) {
-            this.unlockables.splice(index, 1);
-          }
         }
       });
     }
