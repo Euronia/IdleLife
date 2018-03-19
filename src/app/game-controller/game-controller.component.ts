@@ -7,6 +7,7 @@ import {Price} from '../model/price.model';
 import {PrestigeCurrency} from '../model/prestige.model';
 import {Character} from '../model/characters/character.model';
 import {Bar} from '../model/bar/bar.model';
+import {Skill} from '../model/characters/skill.model';
 
 @Component({
   selector: 'app-game-controller',
@@ -23,12 +24,15 @@ export class GameControllerComponent implements OnInit {
   prestiges: PrestigeCurrency[] = [];
   interval = 1000;
   last = 0;
+  salary = 20;
   playerTime = 0;
   statsService: StatisticsService;
   producerUnlocked = false;
   upgradeUnlocked = false;
   activeTab = 'Work';
   selectedIndex = 0;
+  slackingValue = 1;
+  skills: Skill[] = [];
 
   //  HOME CONTROLLER
 
@@ -52,6 +56,7 @@ export class GameControllerComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.initSkills();
     const workUnit = new Resource(1, true, 'WorkUnit', 0);
     this.workResources.push(workUnit);
     const happiness = new Resource(2, false, 'Happiness', 0);
@@ -83,9 +88,20 @@ export class GameControllerComponent implements OnInit {
     workUnit.addUnlockableOnNumber(25, workDays);
     happiness.addUnlockableOnNumber(20, incrementalUnlock);
     incrementalUnlock.addUnlockableOnNumber(1, incrementals);
+    workDays.addUnlockableOnNumber(5, this.skills[1]);
+    workDays.addUnlockableOnNumber(5, this.skills[2]);
 
     this.initHome();
     setInterval(this.update.bind(this), this.interval);
+  }
+
+  initSkills() {
+    const coding = new Skill(1, 'Coding', true, 1);
+    this.skills.push(coding);
+    const cooking = new Skill(2, 'Cooking', false, 0);
+    this.skills.push(cooking);
+    const gardening = new Skill(3, 'Gardening', false, 0);
+    this.skills.push(gardening);
   }
 
   update() {
@@ -94,19 +110,27 @@ export class GameControllerComponent implements OnInit {
     this.playerTime += delta;
 
     if (delta > this.interval) {
-      const earned = this.updateProduction();
-      this.updateUnlockables();
-      this.updateStatistics(earned);
+      if (this.activeTab === 'Work') {
+        this.workUpdate();
+      } else if (this.activeTab === 'Bar') {
+        this.barUpdate();
+      }
       this.updatePrestiges();
       this.last = delta;
       }
     }
 
+  workUpdate() {
+    const earned = this.updateProduction();
+    this.updateUnlockables();
+    this.updateStatistics(earned);
+  }
+
   updateProduction() {
     let coinsEarned: any = 0;
       this.workProducers.forEach(item => {
         item.production.forEach(producedItem => {
-          producedItem.quantity += item.prodPerSec * item.quantity;
+          producedItem.changeQuantity(item.prodPerSec * item.quantity);
           coinsEarned += item.prodPerSec * item.quantity;
         });
     });
@@ -136,11 +160,11 @@ export class GameControllerComponent implements OnInit {
   }
 
   writeCode() {
-    this.workResources[0].changeQuantity(1);
+    this.workResources[0].changeQuantity(this.skills[0].quantity);
   }
 
   slackReddit() {
-    this.workResources[1].changeQuantity(1);
+    this.workResources[1].changeQuantity(this.slackingValue);
   }
 
   callItADay() {
@@ -150,7 +174,7 @@ export class GameControllerComponent implements OnInit {
       this.switchToTab('Home');
       this.selectedIndex = 1;
     }
-    this.startWorkDay()
+    this.startWorkDay();
   }
 
   startWorkDay() {
@@ -198,6 +222,13 @@ export class GameControllerComponent implements OnInit {
     }
   }
 
+  upgradeSkill(skill: Skill) {
+    if (this.homeResources[0].quantity >= skill.energyToTrain) {
+      skill.gainExperience(1);
+      this.homeResources[0].quantity -= 2;
+    }
+  }
+
   endHomeDay() {
     this.prestiges[1].changeQuantity(1);
     this.homeResources[0].quantity = 10;
@@ -216,17 +247,39 @@ export class GameControllerComponent implements OnInit {
 
   startBar(participants) {
     this.bar = new Bar(participants);
+    this.initBar();
   }
 
   initBar() {
     const liver_resistance = new Resource (1, true, 'Liver Resistance', 1000);
     this.barResources.push(liver_resistance);
 
-    const alcohols = new Producer(1, true, 'Alcohol', [liver_resistance], -20,
-      new Price(1, 1001), 1, 1, 'Alcohol is slowly but urely beating you');
+    const money = new Resource (2, true, 'Money', this.salary);
+    this.barResources.push(money);
 
-    const chips = new Producer(2, true, 'Peanuts', [liver_resistance], 0.2,
-      new Price(1, 1001), 1, 1, 'Alcohol is slowly but urely beating you');
+    const alcohols = new Producer(1, true, 'Alcohol', [liver_resistance], -20,
+      new Price(1, 1001), 1, 1, 'Alcohol is slowly but surely beating you');
+    this.barProducers.push(alcohols);
+
+    const peanuts = new Producer(2, true, 'Peanuts', [liver_resistance], 0.2,
+      new Price(1, 1001), 0, 1, 'Alcohol is slowly but surely beating you');
+    this.barProducers.push(peanuts);
   }
+
+  barUpdate() {
+    this.updateBarProduction();
+  }
+
+  updateBarProduction() {
+    let coinsEarned: any = 0;
+    this.barProducers.forEach(item => {
+      item.production.forEach(producedItem => {
+        producedItem.quantity += item.prodPerSec * item.quantity;
+        coinsEarned += item.prodPerSec * item.quantity;
+      });
+    });
+    return coinsEarned;
+  }
+
 
 }

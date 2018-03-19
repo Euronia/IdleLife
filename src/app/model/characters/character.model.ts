@@ -14,7 +14,7 @@ export class Character {
   ];
 
   constructor() {
-    this.name = this.prenoms[Math.floor(Math.random() * (this.prenoms.length + 1))];
+    this.name = this.prenoms[Math.floor(Math.random() * (this.prenoms.length))];
     this.affection = 0;
     this.traits = null;
   }
