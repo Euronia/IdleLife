@@ -5,6 +5,9 @@ import {Upgrade} from '../model/upgrade.model';
 import {StatisticsService} from '../statistics/service/statistics.service';
 import {Price} from '../model/price.model';
 import {PrestigeCurrency} from '../model/prestige.model';
+import {Character} from '../model/characters/character.model';
+import {Bar} from '../model/bar/bar.model';
+import {Skill} from '../model/characters/skill.model';
 
 @Component({
   selector: 'app-game-controller',
@@ -15,17 +18,21 @@ import {PrestigeCurrency} from '../model/prestige.model';
 export class GameControllerComponent implements OnInit {
 
   workResources: Resource[] = [];
+  coworkers: Character[] = [];
   workProducers: Producer[] = [];
   workUpgrades: Upgrade[] = [];
   prestiges: PrestigeCurrency[] = [];
   interval = 1000;
   last = 0;
+  salary = 20;
   playerTime = 0;
   statsService: StatisticsService;
   producerUnlocked = false;
   upgradeUnlocked = false;
   activeTab = 'Work';
   selectedIndex = 0;
+  slackingValue = 1;
+  skills: Skill[] = [];
 
   //  HOME CONTROLLER
 
@@ -36,12 +43,20 @@ export class GameControllerComponent implements OnInit {
   // noinspection TsLint
   homeUpgrades: Upgrade[] = [];
 
+  // BAR CONTROLLER
+
+  bar: Bar;
+  barResources: Resource[] = [];
+  barProducers: Producer[] = [];
+  barUpgrades: Upgrade[] = [];
+
 
   constructor(statsService: StatisticsService) {
     this.statsService = statsService;
   }
 
   ngOnInit() {
+    this.initSkills();
     const workUnit = new Resource(1, true, 'WorkUnit', 0);
     this.workResources.push(workUnit);
     const happiness = new Resource(2, false, 'Happiness', 0);
@@ -61,14 +76,32 @@ export class GameControllerComponent implements OnInit {
     const homeDays = new PrestigeCurrency(2, false, 'Home days', 0, null, 'Go to sleep');
     this.prestiges.push(homeDays);
 
+    this.coworkers.push(new Character());
+    this.coworkers.push(new Character());
+    this.coworkers.push(new Character());
+    this.coworkers.push(new Character());
+
+
+
     workUnit.addUnlockableOnNumber(2, happiness);
     workUnit.addUnlockableOnNumber(5, worker);
     workUnit.addUnlockableOnNumber(25, workDays);
     happiness.addUnlockableOnNumber(20, incrementalUnlock);
     incrementalUnlock.addUnlockableOnNumber(1, incrementals);
+    workDays.addUnlockableOnNumber(5, this.skills[1]);
+    workDays.addUnlockableOnNumber(5, this.skills[2]);
 
     this.initHome();
     setInterval(this.update.bind(this), this.interval);
+  }
+
+  initSkills() {
+    const coding = new Skill(1, 'Coding', true, 1);
+    this.skills.push(coding);
+    const cooking = new Skill(2, 'Cooking', false, 0);
+    this.skills.push(cooking);
+    const gardening = new Skill(3, 'Gardening', false, 0);
+    this.skills.push(gardening);
   }
 
   update() {
@@ -77,19 +110,27 @@ export class GameControllerComponent implements OnInit {
     this.playerTime += delta;
 
     if (delta > this.interval) {
-      const earned = this.updateProduction();
-      this.updateUnlockables();
-      this.updateStatistics(earned);
+      if (this.activeTab === 'Work') {
+        this.workUpdate();
+      } else if (this.activeTab === 'Bar') {
+        this.barUpdate();
+      }
       this.updatePrestiges();
       this.last = delta;
       }
     }
 
+  workUpdate() {
+    const earned = this.updateProduction();
+    this.updateUnlockables();
+    this.updateStatistics(earned);
+  }
+
   updateProduction() {
     let coinsEarned: any = 0;
       this.workProducers.forEach(item => {
         item.production.forEach(producedItem => {
-          producedItem.quantity += item.prodPerSec * item.quantity;
+          producedItem.changeQuantity(item.prodPerSec * item.quantity);
           coinsEarned += item.prodPerSec * item.quantity;
         });
     });
@@ -119,22 +160,26 @@ export class GameControllerComponent implements OnInit {
   }
 
   writeCode() {
-    this.workResources[0].changeQuantity(1);
+    this.workResources[0].changeQuantity(this.skills[0].quantity);
   }
 
   slackReddit() {
-    this.workResources[1].changeQuantity(1);
+    this.workResources[1].changeQuantity(this.slackingValue);
   }
 
   callItADay() {
-    this.workProducers.forEach(item => item.prestigeWorkDay());
-    this.workResources.forEach(item => item.quantity = 0);
     this.prestiges[0].changeQuantity(1);
     this.prestiges[0].buyable = false;
     if (this.prestiges[0].quantity % 5 === 0) {
       this.switchToTab('Home');
       this.selectedIndex = 1;
     }
+    this.startWorkDay();
+  }
+
+  startWorkDay() {
+    this.workProducers.forEach(item => item.prestigeWorkDay());
+    this.workResources.forEach(item => item.quantity = 0);
   }
 
   switchToTab(tab: string) {
@@ -177,13 +222,64 @@ export class GameControllerComponent implements OnInit {
     }
   }
 
+  upgradeSkill(skill: Skill) {
+    if (this.homeResources[0].quantity >= skill.energyToTrain) {
+      skill.gainExperience(1);
+      this.homeResources[0].quantity -= 2;
+    }
+  }
+
   endHomeDay() {
     this.prestiges[1].changeQuantity(1);
     this.homeResources[0].quantity = 10;
     if (this.prestiges[1].quantity % 2 === 0) {
       this.selectedIndex = 0;
       this.switchToTab('Work');
+      this.startWorkDay();
     }
   }
+
+  goToBar() {
+    this.startBar(this.coworkers);
+    this.selectedIndex = 3;
+    this.switchToTab('Bar');
+  }
+
+  startBar(participants) {
+    this.bar = new Bar(participants);
+    this.initBar();
+  }
+
+  initBar() {
+    const liver_resistance = new Resource (1, true, 'Liver Resistance', 1000);
+    this.barResources.push(liver_resistance);
+
+    const money = new Resource (2, true, 'Money', this.salary);
+    this.barResources.push(money);
+
+    const alcohols = new Producer(1, true, 'Alcohol', [liver_resistance], -20,
+      new Price(1, 1001), 1, 1, 'Alcohol is slowly but surely beating you');
+    this.barProducers.push(alcohols);
+
+    const peanuts = new Producer(2, true, 'Peanuts', [liver_resistance], 0.2,
+      new Price(1, 1001), 0, 1, 'Alcohol is slowly but surely beating you');
+    this.barProducers.push(peanuts);
+  }
+
+  barUpdate() {
+    this.updateBarProduction();
+  }
+
+  updateBarProduction() {
+    let coinsEarned: any = 0;
+    this.barProducers.forEach(item => {
+      item.production.forEach(producedItem => {
+        producedItem.quantity += item.prodPerSec * item.quantity;
+        coinsEarned += item.prodPerSec * item.quantity;
+      });
+    });
+    return coinsEarned;
+  }
+
 
 }
