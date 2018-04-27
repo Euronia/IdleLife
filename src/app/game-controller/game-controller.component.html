@@ -93,7 +93,7 @@
     </mat-card>
 
 
-    <mat-card *ngIf="this.upgradeUnlocked">
+    <mat-card >
       <mat-card-title>Upgrades </mat-card-title>
       <ng-container *ngFor="let upgrade of this.homeUpgrades" >
         <div *ngIf="upgrade.unlocked && !upgrade.bought">

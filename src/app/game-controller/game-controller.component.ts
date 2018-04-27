@@ -170,7 +170,7 @@ export class GameControllerComponent implements OnInit {
   callItADay() {
     this.prestiges[0].changeQuantity(1);
     this.prestiges[0].buyable = false;
-    if (this.prestiges[0].quantity % 5 === 0) {
+    if (this.prestiges[0].quantity !== 0 && this.prestiges[0].quantity % 5 === 0) {
       this.switchToTab('Home');
       this.selectedIndex = 1;
     }
@@ -211,7 +211,13 @@ export class GameControllerComponent implements OnInit {
       0, 1.25, new Price(1, 5), false, this.workProducers[1]);
     this.homeUpgrades.push(upgPlayIncrementalHome);
 
-    this.workProducers[1].addUnlockableOnNumber(1, upgPlayIncrementalHome);
+    this.workProducers[1].addUnlockableOnNumbesr(1, upgPlayIncrementalHome);
+
+    const upgWorkers = new Upgrade(2, false, 'Use your new knowledge to refactorate your workers',
+      0, 1.50, new Price(1, 10), false, this.workProducers[0]);
+    this.homeUpgrades.push(upgWorkers);
+
+    this.skills[0].addUnlockableOnNumber(1, upgWorkers);
   }
 
   buyHomeUpgrade(upgrade: Upgrade) {
@@ -241,8 +247,8 @@ export class GameControllerComponent implements OnInit {
 
   goToBar() {
     this.startBar(this.coworkers);
-    this.selectedIndex = 3;
     this.switchToTab('Bar');
+    this.selectedIndex = 2 ;
   }
 
   startBar(participants) {
@@ -268,6 +274,9 @@ export class GameControllerComponent implements OnInit {
 
   barUpdate() {
     this.updateBarProduction();
+    if (this.barResources[0].quantity <= 0) {
+      this.callItADay();
+    }
   }
 
   updateBarProduction() {
